@@ -45,37 +45,37 @@ class SchedulerServiceTest {
 
         //Assertions.assertEquals(getSnapResult(), new Gson().toJson(response));//TODO: hacer de otro modo
         StepVerifier.create(response)
-                .expectNextMatches(programDate -> {
-                    return programDate.getDate().toString().equals("2022-01-03") &&
-                            programDate.getCategoryName().equals("Principios");
-                })
-                .expectNextMatches(programDate -> {
-                    return programDate.getDate().toString().equals("2022-01-04") &&
-                            programDate.getCategoryName().equals("Bases");
-                })
-                .expectNextMatches(programDate -> {
-                    return programDate.getDate().toString().equals("2022-01-05") &&
-                            programDate.getCategoryName().equals("Bases");
-                })
-                .expectNextMatches(programDate -> {
-                    return programDate.getDate().toString().equals("2022-01-06") &&
-                            programDate.getCategoryName().equals("Fundamentos");
-                })
-                .expectNextMatches(programDate -> {
-                    return programDate.getDate().toString().equals("2022-01-07") &&
-                            programDate.getCategoryName().equals("Fundamentos");
-                })
-                .expectNextMatches(programDate -> {
-                    return programDate.getDate().toString().equals("2022-01-10") &&
-                            programDate.getCategoryName().equals("Fundamentos");
-                })
-                .verifyComplete();
+                .expectNextMatches(programDate ->
+                     programDate.getDate().toString().equals("2022-01-03") &&
+                     programDate.getCategoryName().equals("Principios")
+                )
+                .expectNextMatches(programDate ->
+                    programDate.getDate().toString().equals("2022-01-04") &&
+                    programDate.getCategoryName().equals("Bases")
+                )
+                .expectNextMatches(programDate ->
+                    programDate.getDate().toString().equals("2022-01-05") &&
+                    programDate.getCategoryName().equals("Bases")
+                )
+                .expectNextMatches(programDate ->
+                    programDate.getDate().toString().equals("2022-01-06") &&
+                    programDate.getCategoryName().equals("Fundamentos")
+                )
+                .expectNextMatches(programDate ->
+                    programDate.getDate().toString().equals("2022-01-07") &&
+                    programDate.getCategoryName().equals("Fundamentos")
+                )
+                .expectNextMatches(programDate ->
+                    programDate.getDate().toString().equals("2022-01-10") &&
+                    programDate.getCategoryName().equals("Fundamentos")
+                )
+                .expectNextCount(6)
+                .expectComplete();
 
         //Assertions.assertEquals(13, response.size());//TODO: hacer de otro modo
         StepVerifier.create(response)
             .expectNextCount(6)
             .verifyComplete();
-
 
     Mockito.verify(repository).findById(programId);
     }
@@ -87,13 +87,10 @@ class SchedulerServiceTest {
 
         Mockito.when(repository.findById(programId)).thenReturn(Mono.empty());
 
-        //TODO: hacer de otro modo
-        var exception = Assertions.assertThrows(RuntimeException.class, () -> {
-            schedulerService.generateCalendar(programId, startDate);//TODO: hacer una subscripción de el servicio reactivo
-
-        });
-        Assertions.assertEquals("El programa academnico no existe", exception.getMessage());//TODO: hacer de otro modo
-        Mockito.verify(repository).findById(programId);
+        Flux<ProgramDate> response = schedulerService.generateCalendar(programId, startDate);
+        StepVerifier.create(response)
+                .expectErrorMessage("El programa academico no existe")
+                .verify();
 
     }
 
